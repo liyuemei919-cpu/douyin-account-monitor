@@ -24,15 +24,19 @@
 
 ```
 douyin-monitor/
-├── fetch_all_accounts.py   # 入口1：按 MONITOR_UIDS 全量抓取并入库
+├── panel.py                # 本地 Web 操作面板（账号增删 / 立即刷新 / 看板）
+├── accounts.json           # 监控账号列表（单一数据源，仅含公开 UID，可入库）
+├── accounts.py             # accounts.json 的读写模块
+├── fetch_all_accounts.py   # 入口1：按 accounts.json 全量抓取并入库
 ├── build_consolidated.py   # 入口2：从数据库生成 deploy/index.html 看板
 ├── tikhub_client.py        # TikHub API 封装（资料/作品/视频详情/Dou+）
 ├── build_single_account.py # 单账号抓取 + 入库逻辑 + .env 加载
-├── monitor.py              # 数据库读写（video_daily / snapshots / profiles）
+├── monitor.py              # 数据库读写（video_daily / snapshots）
 ├── config.py               # 开关配置（维度、Cookie 等）
 ├── data/                   # SQLite 数据库（已 gitignore，可重新生成）
 ├── deploy/
 │   └── index.html          # 生成的看板（可直接用浏览器打开）
+├── requirements.txt        # Flask 依赖
 ├── .env.example            # 密钥模板，复制为 .env 后填值
 └── .gitignore
 ```
@@ -43,7 +47,7 @@ douyin-monitor/
 
 ### 1. 安装依赖
 ```bash
-pip install requests
+pip install -r requirements.txt   # 含 flask + requests
 ```
 
 ### 2. 配置密钥
@@ -82,9 +86,36 @@ python build_consolidated.py
 
 ---
 
+## 可视化操作面板（推荐）
+
+不想记命令？用本地 Web 面板点点鼠标即可：
+
+```bash
+python panel.py
+# 浏览器打开 http://127.0.0.1:5000
+```
+
+面板功能（全部本地运行，**密钥绝不离开本机**，仅监听 127.0.0.1）：
+- **账号管理**：输入 UID 即可「新增 / 移除」监控账号（写入 `accounts.json`，无需改代码）
+- **立即刷新**：一键触发「全量抓取 + 重建看板」，后台执行并实时显示日志
+- **打开看板**：面板内直接预览 `deploy/index.html`
+- **配置状态**：显示 API Key / Cookie 是否已配置（**绝不显示具体值**）
+
+> 端口占用时，改 `panel.py` 末尾 `app.run(port=5000)` 的端口即可。
+> 新增账号后点「立即刷新」才会抓取数据；不操作也会在每日 18:00 自动任务时抓取。
+
 ## 配置监控账号
 
-编辑 `build_consolidated.py` 顶部的 `MONITOR_UIDS`（以及 `fetch_all_accounts.py` 中对应的列表），加入要监控的抖音账号 UID。
+监控列表的**单一数据源是 `accounts.json`**（仅含公开 UID，已入库）。推荐用上面的操作面板增删；也可直接编辑 `accounts.json`：
+
+```json
+[
+  { "uid": "2697552638795803", "nickname": "小杏福" },
+  { "uid": "7650684889516180529", "nickname": "發財喵" }
+]
+```
+
+`fetch_all_accounts.py` 与 `build_consolidated.py` 都读取该文件；编辑后无需改任何脚本代码。
 
 ---
 
