@@ -1,0 +1,38 @@
+# ===== Secrets (NEVER commit) =====
+# 本地密钥文件：含 TikHub API Key 与抖音登录 Cookie，已强制忽略
+.env
+.env.local
+*.env
+*.env.txt
+douyin-monitor.env
+douyin-monitor.env.txt
+config_local.py
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# ===== Data & DB（可重新抓取生成，可能含私有快照） =====
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== Generated reports =====
+reports/
+
+# ===== WorkBuddy 内部目录 =====
+.workbuddy/
+
+# ===== Temp =====
+.tikhub_tmp/
+*.tmp
+*.log
+
+# ===== 旧的/重复的看板产物（只保留 deploy/index.html） =====
+deploy/aggregate.html
+deploy/*_*.html
